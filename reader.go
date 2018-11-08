@@ -3,6 +3,7 @@ package gcp_storage
 import (
 	"fmt"
 	"io"
+	"log"
 
 	"cloud.google.com/go/storage"
 	"golang.org/x/net/context"
@@ -16,11 +17,7 @@ type BuffReader struct {
 	offset int
 }
 
-func NewBuffReader(bucketName, objectName string) (*BuffReader, error) {
-	return NewBuffReaderSized(bucketName, objectName, 1024)
-}
-
-func NewBuffReaderSized(bucketName, objectName string, size int) (*BuffReader, error) {
+func NewBuffReader(bucketName, objectName string, bufSize int) (*BuffReader, error) {
 	ctx := context.Background()
 
 	client, err := storage.NewClient(ctx)
@@ -40,12 +37,13 @@ func NewBuffReaderSized(bucketName, objectName string, size int) (*BuffReader, e
 		ctx:    ctx,
 		obj:    obj,
 		rc:     rc,
-		buf:    make([]byte, size),
+		buf:    make([]byte, bufSize),
 		offset: -1,
 	}, nil
 }
 
 func (ra *BuffReader) ReadAt(b []byte, off int64) (int, error) {
+	log.Printf("ReadAt called: length slice=%d, offset=%d", len(b), off)
 	if ra == nil {
 		return 0, fmt.Errorf("invalid")
 	}
