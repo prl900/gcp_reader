@@ -14,7 +14,7 @@ type BuffReader struct {
 	rc     io.ReadCloser
 	buf    []byte
 	offset int
-	log    string
+	Log    string
 }
 
 func NewBuffReader(bucketName, objectName string, bufSize int) (*BuffReader, error) {
@@ -43,7 +43,7 @@ func NewBuffReader(bucketName, objectName string, bufSize int) (*BuffReader, err
 }
 
 func (ra *BuffReader) ReadAt(b []byte, off int64) (int, error) {
-	log += fmt.Sprintf("ReadAt called: length slice=%d, offset=%d\n", len(b), off)
+	ra.Log += fmt.Sprintf("ReadAt called: length slice=%d, offset=%d\n", len(b), off)
 
 	if ra == nil {
 		return 0, fmt.Errorf("invalid")
