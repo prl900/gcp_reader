@@ -43,7 +43,7 @@ func NewBuffReader(bucketName, objectName string, bufSize int) (*BuffReader, err
 }
 
 func (ra *BuffReader) ReadAt(b []byte, off int64) (int, error) {
-	ra.Log += fmt.Sprintf("ReadAt called: length slice=%d, offset=%d\n", len(b), off)
+	ra.Log += fmt.Sprintf("ReadAt called: length slice=%d, offset=%d", len(b), off)
 
 	if ra == nil {
 		return 0, fmt.Errorf("invalid")
@@ -52,11 +52,13 @@ func (ra *BuffReader) ReadAt(b []byte, off int64) (int, error) {
 	s := int(off) - ra.offset
 	e := (int(off) + len(b)) - ra.offset
 	if ra.offset >= 0 && s >= 0 && e <= len(ra.buf) {
+		ra.Log += fmt.Sprintf("Served from buffer!\n")
 		copy(b, ra.buf[s:e])
 		return e - s, nil
 	}
 
 	if len(b) < len(ra.buf) {
+		ra.Log += fmt.Sprintf("Does not fit in our buffer...\n")
 		rc, err := ra.obj.NewRangeReader(ra.ctx, off, int64(len(ra.buf)))
 		if err != nil {
 			return 0, err
@@ -74,6 +76,7 @@ func (ra *BuffReader) ReadAt(b []byte, off int64) (int, error) {
 
 	}
 
+	ra.Log += fmt.Sprintf("It would fit but we don't have it...\n")
 	rc, err := ra.obj.NewRangeReader(ra.ctx, off, int64(len(b)))
 	if err != nil {
 		return 0, err
