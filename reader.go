@@ -81,8 +81,7 @@ func (ra *BuffReader) ReadAt(b []byte, off int64) (int, error) {
 	}
 	defer rc.Close()
 
-	n, err := io.ReadFull(rc, b)
-	return n, err
+	return io.ReadFull(rc, b)
 }
 
 func (ra *BuffReader) Read(b []byte) (int, error) {
@@ -91,4 +90,8 @@ func (ra *BuffReader) Read(b []byte) (int, error) {
 	}
 
 	return ra.rc.Read(b)
+}
+
+func (ra *BuffReader) Close() error {
+	return ra.rc.Close()
 }
