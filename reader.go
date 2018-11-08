@@ -58,7 +58,7 @@ func (ra *BuffReader) ReadAt(b []byte, off int64) (int, error) {
 	}
 
 	if len(b) < len(ra.buf) {
-		ra.Log += fmt.Sprintf("Does not fit in our buffer...\n")
+		ra.Log += fmt.Sprintf("It would fit but we don't have it...\n")
 		rc, err := ra.obj.NewRangeReader(ra.ctx, off, int64(len(ra.buf)))
 		if err != nil {
 			return 0, err
@@ -76,7 +76,7 @@ func (ra *BuffReader) ReadAt(b []byte, off int64) (int, error) {
 
 	}
 
-	ra.Log += fmt.Sprintf("It would fit but we don't have it...\n")
+	ra.Log += fmt.Sprintf("Does not fit in our buffer...\n")
 	rc, err := ra.obj.NewRangeReader(ra.ctx, off, int64(len(b)))
 	if err != nil {
 		return 0, err
