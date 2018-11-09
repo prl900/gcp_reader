@@ -60,14 +60,17 @@ func (ra *BuffReader) ReadAt(b []byte, off int64) (int, error) {
 	if len(b) < len(ra.buf) {
 		ra.Log += fmt.Sprintf("It would fit but we don't have it...\n")
 		rc, err := ra.obj.NewRangeReader(ra.ctx, off, int64(len(ra.buf)))
+		defer rc.Close()
 		if err != nil {
 			return 0, err
 		}
-		defer rc.Close()
 
-		_, err = io.ReadFull(rc, ra.buf)
+		n, err := io.ReadFull(rc, ra.buf)
 		if err != nil {
 			return 0, err
+		}
+		if n != len(ra.buf) {
+			return n, fmt.Errorf("couldn't read enough")
 		}
 		ra.offset = int(off)
 		copy(b, ra.buf[:len(b)])
@@ -78,10 +81,10 @@ func (ra *BuffReader) ReadAt(b []byte, off int64) (int, error) {
 
 	ra.Log += fmt.Sprintf("Does not fit in our buffer...\n")
 	rc, err := ra.obj.NewRangeReader(ra.ctx, off, int64(len(b)))
+	defer rc.Close()
 	if err != nil {
 		return 0, err
 	}
-	defer rc.Close()
 
 	return io.ReadFull(rc, b)
 }
